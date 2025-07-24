@@ -2,6 +2,7 @@ import fitz  # PyMuPDF
 import re
 import json
 import os
+import subprocess
 from unidecode import unidecode
 from sketchfab_fetcher import fetch_and_download_model
 
@@ -14,6 +15,23 @@ def extract_clean_text(pdf_path):
     clean_text = re.sub(r"\s+", " ", clean_text)
     return clean_text.lower()
 
+def call_ollama_mistral(prompt, system_prompt):
+    try:
+        result = subprocess.run(
+            ["ollama", "run", "mistral"],
+            input=json.dumps({
+                "system": system_prompt,
+                "prompt": prompt
+            }),
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print("❌ Ollama call failed:", e.stderr)
+        return None
+
 def extract_car_info(text):
     info = {
         "name": "unknown_car",
@@ -23,36 +41,45 @@ def extract_car_info(text):
         "safety": "unknown"
     }
 
-    # Full car name using brand and next 2-3 words (e.g., "hyundai grand i10 nios")
     known_brands = [
         "hyundai", "toyota", "honda", "kia", "tata", "mahindra", "maruti",
         "suzuki", "ford", "nissan", "porsche", "audi", "bmw", "mercedes"
     ]
-
     brand_pattern = r"|".join(known_brands)
     full_name_match = re.search(rf"({brand_pattern})(\s+[a-z0-9]+){{1,3}}", text)
     if full_name_match:
-        info["name"] = full_name_match.group(0).strip()
+        raw_name = full_name_match.group(0).strip()
+        print(f"📝 Raw extracted name: {raw_name}")
 
-    # Speed / Power
+        print("🧠 Validating name using Mistral via Ollama...")
+        system_prompt = (
+            "You are a helpful assistant extracting proper car names from brochures. "
+            "Given a noisy string from a brochure like 'Hyundai Grand i10 Nios safety features', "
+            "extract only the clean car name without extra marketing or feature-related terms. "
+            "Do not include things like 'features', 'safety', 'top speed', etc. "
+            "Only return the clean car name. Example outputs: 'Hyundai Grand i10 Nios', 'Kia Seltos', 'Maruti Suzuki Baleno'."
+        )
+        cleaned_name = call_ollama_mistral(prompt=raw_name, system_prompt=system_prompt)
+        if cleaned_name:
+            info["name"] = cleaned_name.lower().strip()
+        else:
+            info["name"] = raw_name.lower().strip()
+
     speed_match = re.search(r"(\d{2,3}(\.\d+)?)(\s*(km/l|kmph|km/h|ps|bhp|kw))", text)
     if speed_match:
         info["speed"] = f"{speed_match.group(1)} {speed_match.group(4)}"
 
-    # Acceleration
     accel_match = re.search(r"0[-–]100\s*km/h\s*[:\-]?\s*(\d+\.?\d*)\s*s", text)
     if accel_match:
         info["acceleration"] = f"{accel_match.group(1)} s"
     else:
         info["acceleration"] = "not mentioned"
 
-    # Handling
     if any(term in text for term in ["vehicle stability control", "hill hold", "cornering", "torque vectoring", "electronic stability"]):
         info["handling"] = "excellent"
     elif "traction control" in text:
         info["handling"] = "good"
 
-    # Safety score
     safety_keywords = ["abs", "airbags", "ebd", "isofix", "collision", "lane assist", "seatbelt", "hill-start", "speed alert", "emergency stop"]
     safety_score = sum(1 for kw in safety_keywords if kw in text)
     if safety_score >= 5:
@@ -62,7 +89,6 @@ def extract_car_info(text):
     elif safety_score >= 1:
         info["safety"] = "3/5"
 
-    # Selling points
     feature_keywords = [
         "alloy wheels", "diamond cut", "led tail lamps", "projector headlamps", "cruise control",
         "rear ac vent", "wireless charger", "voice recognition", "hill-start assist",
@@ -76,8 +102,6 @@ def extract_car_info(text):
     info["features"] = features_found
 
     return info
-
-
 
 def save_json(info):
     with open("car_info.json", "w") as f:

@@ -27,7 +27,7 @@
     }
 
     #car-name {
-      position: absolute; top: 40%; left: 17%; 
+      position: absolute; top: 20%; left: 17%; 
       background: rgba(0, 0, 0, 0.2); color: white;
       border-radius: 8px; font-size: 20px; z-index: 200;
       font-family: "Anton", sans-serif;
@@ -231,6 +231,103 @@
     const desc = document.getElementById('feature-description');
     const carName = document.getElementById('car-name');
     const chatWithAIBtn = document.getElementById('chatWithAIBtn');
+    const recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
+    const synth = window.speechSynthesis;
+
+    if (!recognition) alert("Speech Recognition not supported in this browser");
+
+    const chatContainer = document.createElement("div");
+    chatContainer.style.position = "absolute";
+    chatContainer.style.bottom = "100px";
+    chatContainer.style.right = "30px";
+    chatContainer.style.width = "300px";
+    chatContainer.style.maxHeight = "60vh";
+    chatContainer.style.overflowY = "auto";
+    chatContainer.style.background = "#1e1e1e";
+    chatContainer.style.borderRadius = "10px";
+    chatContainer.style.padding = "10px";
+    chatContainer.style.fontFamily = "Arial, sans-serif";
+    chatContainer.style.color = "white";
+    chatContainer.style.display = "none";
+    document.body.appendChild(chatContainer);
+
+    function appendMessage(message, sender) {
+      const bubble = document.createElement("div");
+      bubble.style.margin = "8px 0";
+      bubble.style.padding = "10px";
+      bubble.style.borderRadius = "10px";
+      bubble.style.maxWidth = "80%";
+      bubble.style.background = sender === "user" ? "#2563eb" : "#444";
+      bubble.style.alignSelf = sender === "user" ? "flex-end" : "flex-start";
+      bubble.textContent = message;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTypingAnimation() {
+      const typing = document.createElement("div");
+      typing.id = "typing";
+      typing.textContent = "AI is typing...";
+      typing.style.fontStyle = "italic";
+      typing.style.color = "#aaa";
+      chatContainer.appendChild(typing);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTypingAnimation() {
+      const typing = document.getElementById("typing");
+      if (typing) typing.remove();
+    }
+
+    async function askAI(question) {
+      appendMessage(question, "user");
+      showTypingAnimation();
+
+      try {
+        const carInfoRes = await fetch("car_info.json");
+        const carInfo = await carInfoRes.json();
+
+        const brochureData = `Here is the extracted brochure information: ${JSON.stringify(carInfo)}.`;
+
+        const systemPrompt = `You are an expert automotive assistant helping users understand cars using brochure content. Answer clearly, reference features, and be informative. ${brochureData}`;
+
+        const res = await fetch("http://localhost:11434/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "mistral",
+            stream: false,
+            prompt: `SYSTEM: ${systemPrompt}\nUSER: ${question}`
+          })
+        });
+
+        const data = await res.json();
+        removeTypingAnimation();
+        appendMessage(data.response.trim(), "ai");
+
+        const utterance = new SpeechSynthesisUtterance(data.response.trim());
+        synth.speak(utterance);
+      } catch (err) {
+        removeTypingAnimation();
+        appendMessage("Something went wrong.", "ai");
+      }
+    }
+
+    chatWithAIBtn.addEventListener("click", () => {
+      if (!recognition) return;
+      chatContainer.style.display = "flex";
+      chatContainer.style.flexDirection = "column";
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        askAI(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        appendMessage("Could not understand. Please try again.", "ai");
+      };
+    });
 
     const selectFileBtn = document.getElementById('selectFileBtn');
     const fileInput = document.getElementById('brochure');
