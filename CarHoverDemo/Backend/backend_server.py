@@ -14,29 +14,31 @@ FRONTEND_JSON_PATH = '../frontend/car_info.json'
 @app.route('/upload', methods=['POST'])
 def upload_brochure():
     if 'pdf' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+        return jsonify({'error': 'No PDF file uploaded'}), 400
 
-    pdf = request.files['pdf']
-    if pdf.filename == '':
+    file = request.files['pdf']
+    if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
 
-    pdf_path = os.path.join(UPLOAD_FOLDER, 'brochure.pdf')
-    pdf.save(pdf_path)
+    temp_path = os.path.join(UPLOAD_FOLDER, 'uploaded_brochure.pdf')
+    file.save(temp_path)
 
     try:
-        text = extract_clean_text(pdf_path)
+        text = extract_clean_text(temp_path)
         info = extract_car_info(text)
+
+        # Set model URL expected by frontend
+        model_filename = info["name"].lower().replace(" ", "_") + ".glb"
+        info["modelUrl"] = f"models/{model_filename}"
+
         save_json(info)
-
-        # Move JSON to frontend
-        shutil.copyfile('car_info.json', FRONTEND_JSON_PATH)
-
-        # Download model to frontend
+        shutil.copyfile("car_info.json", FRONTEND_JSON_PATH)
         check_or_download_model(info["name"])
 
+        os.remove(temp_path)
         return jsonify(info)
     except Exception as e:
         return jsonify({'error': str(e)}), 500

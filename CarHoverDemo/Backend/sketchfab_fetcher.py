@@ -2,8 +2,13 @@ import requests
 import os
 import tempfile
 import zipfile
+from dotenv import load_dotenv
+load_dotenv()
 
-SKETCHFAB_TOKEN = "5dece4e1ebfc4954b08fcabab7462449"
+SKETCHFAB_TOKEN = os.getenv('SKETCHFAB_TOKEN')
+
+if not SKETCHFAB_TOKEN:
+    raise ValueError("SKETCHFAB_TOKEN environment variable not set")
 
 def search_model_uid(query):
     print(f"🔍 Searching Sketchfab for: {query} car")
@@ -87,10 +92,28 @@ def download_model(uid, save_path):
         return False
 
 def fetch_and_download_model(car_name, save_path):
-    uid = search_model_uid(car_name)
-    if not uid:
-        print("❌ No UID found, skipping download.")
+    # Don't proceed if car_name is invalid
+    if not car_name or car_name.strip().lower() in ["unknown", "unknown_car", "unknown model", ""]:
+        print("❌ Invalid car name, skipping model fetch.")
         return
+
+    # Try original query
+    print(f"🔍 Trying original car name: {car_name}")
+    uid = search_model_uid(car_name)
+
+    # If not found, fallback to simplified model (e.g., 'i20')
+    if not uid:
+        simplified = car_name.split(" ")[-1]
+        print(f"↩️ Falling back to simplified model name: {simplified}")
+        uid = search_model_uid(simplified)
+
+    # Still nothing? Give up
+    if not uid:
+        print("❌ Still no UID found after fallback, skipping download.")
+        return
+
+    # Proceed to download
     success = download_model(uid, save_path)
     if not success:
         print("❌ Failed to download and extract model.")
+

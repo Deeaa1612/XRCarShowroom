@@ -1,0 +1,11 @@
+Model Information:
+* title:	Hyundai i20 n Widebody Design
+* source:	https://sketchfab.com/3d-models/hyundai-i20-n-widebody-design-cb5e02f586b04d80be758510db8c1f93
+* author:	zener (https://sketchfab.com/zenerdesign)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Hyundai i20 n Widebody Design" (https://sketchfab.com/3d-models/hyundai-i20-n-widebody-design-cb5e02f586b04d80be758510db8c1f93) by zener (https://sketchfab.com/zenerdesign) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
