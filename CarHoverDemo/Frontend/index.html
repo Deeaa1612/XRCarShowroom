@@ -434,11 +434,12 @@
 
         
   if (carName.innerText.toLowerCase().includes("grand i10 nios")) {
-    console.log("Correction not required!");
-    model.rotation.set(0, 0, 0);
-  } else {
     console.log("Correction required!");
     model.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+
+  } else {
+    console.log("Correction not required!");
+    model.rotation.set(0, 0, 0);
   }
  
         const box = new THREE.Box3().setFromObject(model);

@@ -1,11 +1,11 @@
 Model Information:
-* title:	Porsche 911 GT3 RS
-* source:	https://sketchfab.com/3d-models/porsche-911-gt3-rs-5fd62615f72a4012a5ebc15cd4c64461
-* author:	jasonUWU (https://sketchfab.com/jason0128022280)
+* title:	2020 Hyundai Grand i10 NIOS
+* source:	https://sketchfab.com/3d-models/2020-hyundai-grand-i10-nios-d6edc956ab774c30a9418bb994136cfa
+* author:	@ShreyanshChaurasia_13 (https://sketchfab.com/renuchaurasia13)
 
 Model License:
 * license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 * requirements:	Author must be credited. Commercial use is allowed.
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
-This work is based on "Porsche 911 GT3 RS" (https://sketchfab.com/3d-models/porsche-911-gt3-rs-5fd62615f72a4012a5ebc15cd4c64461) by jasonUWU (https://sketchfab.com/jason0128022280) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+This work is based on "2020 Hyundai Grand i10 NIOS" (https://sketchfab.com/3d-models/2020-hyundai-grand-i10-nios-d6edc956ab774c30a9418bb994136cfa) by @ShreyanshChaurasia_13 (https://sketchfab.com/renuchaurasia13) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
