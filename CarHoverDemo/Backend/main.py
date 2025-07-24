@@ -43,7 +43,7 @@ def extract_car_info(text):
 
     known_brands = [
         "hyundai", "toyota", "honda", "kia", "tata", "mahindra", "maruti",
-        "suzuki", "ford", "nissan", "porsche", "audi", "bmw", "mercedes"
+        "suzuki", "ford", "nissan", "porsche", "audi", "bmw", "mercedes","911"
     ]
     brand_pattern = r"|".join(known_brands)
     full_name_match = re.search(rf"({brand_pattern})(\s+[a-z0-9]+){{1,3}}", text)
@@ -58,6 +58,10 @@ def extract_car_info(text):
             "extract only the clean car name without extra marketing or feature-related terms. "
             "Do not include things like 'features', 'safety', 'top speed', etc. "
             "Only return the clean car name. Example outputs: 'Hyundai Grand i10 Nios', 'Kia Seltos', 'Maruti Suzuki Baleno'."
+            "Do not give unnecessary information. Give only the car name, not your long ass explanations."
+            "Only give the first name that you found!!!"
+            "Do not give any explanation. when you find 2 names, give only the first name that is the most relavant."
+            "Refrain from responses like 'PORSCHE 911 GT3 RS, DODGE CHALLENGER (THE GT3 RS SEEMS MORE RELEVANT FROM THE PROVIDED STRING)'. give the most relavant name. Do not be verbose. whatever you generate will be searched as is in the api. so do not confuse it."
         )
         cleaned_name = call_ollama_mistral(prompt=raw_name, system_prompt=system_prompt)
         if cleaned_name:

@@ -1,32 +1,15 @@
 {
-    "name": "hyundai grand i10 nios",
-    "speed": "83 ps",
+    "name": "porsche 911 gt3 rs",
+    "speed": "unknown",
     "acceleration": "not mentioned",
     "handling": "excellent",
-    "safety": "5/5",
+    "safety": "3/5",
     "features": [
-        "alloy wheels",
-        "diamond cut",
-        "led tail lamps",
-        "projector headlamps",
-        "cruise control",
-        "rear ac vent",
         "voice recognition",
-        "hill-start assist",
-        "vehicle stability management",
         "touchscreen",
-        "android auto",
         "apple carplay",
-        "rear parking camera",
         "airbags",
-        "smart key",
-        "push button start",
-        "footwell lighting",
-        "cng",
-        "glove box",
-        "tyre pressure monitoring",
-        "rear defogger",
-        "multi info display"
+        "automatic climate control"
     ],
-    "modelUrl": "models/hyundai_grand_i10_nios.glb"
+    "modelUrl": "models/porsche_911_gt3_rs.glb"
 }

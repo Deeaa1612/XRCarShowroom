@@ -214,10 +214,25 @@
     controls.minPolarAngle = Math.PI / 2.2;
     controls.maxPolarAngle = Math.PI / 2.2;
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
+    // Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+    scene.add(hemiLight);
+
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.position.set(5, 10, 7.5);
     scene.add(dirLight);
+
+    const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
+    fillLight1.position.set(-5, 5, 5);
+    scene.add(fillLight1);
+
+    const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight2.position.set(5, 5, -5);
+    scene.add(fillLight2);
+
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    backLight.position.set(0, 5, -10);
+    scene.add(backLight);
 
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(200, 200),
@@ -260,6 +275,8 @@
       bubble.style.background = sender === "user" ? "#2563eb" : "#444";
       bubble.style.alignSelf = sender === "user" ? "flex-end" : "flex-start";
       bubble.textContent = message;
+      bubble.style.fontFamily = "Anton, sans-serif";
+      bubble.style.letterSpacing = "0.05cap";
       chatContainer.appendChild(bubble);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
@@ -413,8 +430,17 @@
       loader.load("scene.gltf", (gltf) => {
         const model = gltf.scene;
         // Fix orientation: rotate so car faces horizontally (forward, not down)
-        model.rotation.set(Math.PI/2, Math.PI,Math.PI ); // No pitch, no yaw, no roll
+        
 
+        
+  if (carName.innerText.toLowerCase().includes("porsche")) {
+    console.log("Porsche car!");
+    model.rotation.set(0, 0, 0);
+  } else {
+    console.log("Not a porsche car!");
+    model.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+  }
+ 
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
