@@ -45,6 +45,9 @@
       font-size: 10px;
       font-style: normal;
       letter-spacing: 0.05cap;
+      font-family: "Anton", sans-serif;
+      font-weight: 400;
+      font-style: normal;
     }
 
     #feature-description {
@@ -185,6 +188,7 @@
   </div>
   
   <div id="car-name">Upload brochure to begin</div>
+  <div id="brochure-preview" style="position:absolute;top:90px;left:20px;z-index:210;"></div>
   <div id="tooltip"></div>
   <div id="feature-description"></div>
   
@@ -283,6 +287,11 @@
         await response.json();
         carName.innerText = "Processing completed!";
         await loadCarInfoAndModel();
+
+        // Show the uploaded brochure directly from the file input
+        const previewDiv = document.getElementById('brochure-preview');
+        const url = URL.createObjectURL(file);
+        previewDiv.innerHTML = `<a href="${url}" target="_blank" style="color:#dc2626;font-family:Anton,sans-serif;font-size:18px;">View Uploaded Brochure</a>`;
       } catch (err) {
         console.error("Upload error:", err);
         carName.innerText = "Upload failed!";
@@ -306,7 +315,8 @@
       loader.setPath("./models/");
       loader.load("scene.gltf", (gltf) => {
         const model = gltf.scene;
-        model.rotation.set(-Math.PI / 2, 0, 0);
+        // Fix orientation: rotate so car faces horizontally (forward, not down)
+        model.rotation.set(Math.PI/2, Math.PI,Math.PI ); // No pitch, no yaw, no roll
 
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
@@ -339,19 +349,18 @@
       const min = box.min;
       const max = box.max;
 
-      const featureOffsets = {
-        "alloy wheels": new THREE.Vector3(0.45 * size.x, 0.2 * size.y, 0.4 * size.z),
-        "led tail lamps": new THREE.Vector3(0, 0.4 * size.y, -0.5 * size.z),
-        "projector headlamps": new THREE.Vector3(0, 0.5 * size.y, 0.5 * size.z),
-        "cruise control": new THREE.Vector3(0.2 * size.x, 0.65 * size.y, 0.1 * size.z),
-        "rear ac vent": new THREE.Vector3(0, 0.6 * size.y, -0.1 * size.z),
-        "voice recognition": new THREE.Vector3(0.1 * size.x, 0.65 * size.y, 0),
-        "hill-start assist": new THREE.Vector3(-0.3 * size.x, 0.35 * size.y, -0.2 * size.z),
-        "touchscreen": new THREE.Vector3(0, 0.65 * size.y, 0.2 * size.z),
-        "airbags": new THREE.Vector3(0.3 * size.x, 0.7 * size.y, 0.2 * size.z),
-        "rear parking camera": new THREE.Vector3(0, 0.35 * size.y, -0.55 * size.z)
-      };
-
+  const featureOffsets = {
+    "alloy wheels": new THREE.Vector3(0.45 * size.x, 0.2 * size.y, 0.4 * size.z),
+    "led tail lamps": new THREE.Vector3(0, 0.4 * size.y, -0.5 * size.z),
+    "projector headlamps": new THREE.Vector3(0, 0.5 * size.y, 0.5 * size.z),
+    "cruise control": new THREE.Vector3(0.2 * size.x, 0.65 * size.y, 0.1 * size.z),
+    "rear ac vent": new THREE.Vector3(0, 0.6 * size.y, -0.1 * size.z),              // lifted
+    "voice recognition": new THREE.Vector3(0.1 * size.x, 0.65 * size.y, 0),
+    "hill-start assist": new THREE.Vector3(-0.3 * size.x, 0.35 * size.y, -0.2 * size.z),
+    "touchscreen": new THREE.Vector3(0, 0.65 * size.y, 0.2 * size.z),               // lifted forward
+    "airbags": new THREE.Vector3(0.3 * size.x, 0.7 * size.y, 0.2 * size.z),         // higher + forward
+    "rear parking camera": new THREE.Vector3(0, 0.35 * size.y, -0.55 * size.z)
+  };
       Object.keys(featureDescriptions).forEach(feature => {
         const offset = featureOffsets[feature];
         if (offset) {
